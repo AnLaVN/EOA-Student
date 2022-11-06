@@ -1,2 +1,2 @@
 # EOA-Student
-Exam Online Application
+Exam Online Application for student
