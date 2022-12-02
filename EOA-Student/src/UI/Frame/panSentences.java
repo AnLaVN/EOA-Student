@@ -317,11 +317,6 @@ public class panSentences extends javax.swing.JPanel {
         lblC.setText(cauhoi.getAnswerC());
         lblD.setText(cauhoi.getAnswerD());
         Dashboard.Index++;
-        //set auto true
-        if(ch.getCorrectAnswer().contains("A")) AnswerA = true;
-        if(ch.getCorrectAnswer().contains("B")) AnswerB = true;
-        if(ch.getCorrectAnswer().contains("C")) AnswerC = true;
-        if(ch.getCorrectAnswer().contains("D")) AnswerD = true;
     }
     public boolean getDapAn(){ 
         DapAn = "";

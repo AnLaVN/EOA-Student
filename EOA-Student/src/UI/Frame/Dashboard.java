@@ -608,14 +608,14 @@ public class Dashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_icoFaceRegMousePressed
 
     private void btnRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegActionPerformed
-//        if(myThread != null && myThread.runnable){
-//            FaceRecognition();
-//            myThread.runnable = false;
-//            webSource.release();
-//            icoFaceReg.setVisible(true);
-//            repaint();
-//        }else{setResult(Lang.getString("CamO"));}
-startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
+        if(myThread != null && myThread.runnable){
+            FaceRecognition();
+            myThread.runnable = false;
+            webSource.release();
+            icoFaceReg.setVisible(true);
+            repaint();
+        }else{setResult(Lang.getString("CamO"));}
+//startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
     }//GEN-LAST:event_btnRegActionPerformed
 
     private void chkSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkSubmitActionPerformed
@@ -628,33 +628,7 @@ startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
     }//GEN-LAST:event_chkSubmitActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        Double markA = arrA.size() < 1 ? 0.0 : ((CurrentDT.getPercentA()/100.0)*10) / arrA.size(),
-               markB = arrB.size() < 1 ? 0.0 : ((CurrentDT.getPercentB()/100.0)*10) / arrB.size(),
-               markC = arrC.size() < 1 ? 0.0 : ((CurrentDT.getPercentC()/100.0)*10) / arrC.size(),
-               markD = arrD.size() < 1 ? 0.0 : ((CurrentDT.getPercentD()/100.0)*10) / arrD.size(),
-               TotalMark = 0.0;
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(6);
-        for(Component com : temp.getComponents()){
-            if(com instanceof panSentences pan){
-                CauHoi ch = pan.cauhoi;
-                if(ch.getLevel()==0 && pan.getDapAn()) TotalMark+=markA;
-                if(ch.getLevel()==1 && pan.getDapAn()) TotalMark+=markB;
-                if(ch.getLevel()==2 && pan.getDapAn()) TotalMark+=markC;
-                if(ch.getLevel()==3 && pan.getDapAn()) TotalMark+=markD;
-            }
-        }
-        try{
-            BCDAO.Update(new BaoCao(CurrentBT.getIDBuoiThi(), CurrentL.getIDLop(), CurrentSV.getIDSinhVien(), TotalMark, LostFocus));
-            CurrentSV.setStatus(false);
-            SVDAO.Update(CurrentSV);
-            dispose();
-            Finished dialog = new Finished();
-            dialog.setMark(df.format(TotalMark));
-            dialog.setVisible(true);
-        }catch(Exception ex){
-            Mode.WMessage(this, Lang.getString("ErrSub"), Lang.getString("Notifi"), ERROR_MESSAGE);
-        }
+        Submit();
     }//GEN-LAST:event_btnSubmitActionPerformed
     
     public static void main(String args[]) {
@@ -738,7 +712,7 @@ startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
         setMode();
         repaint();
         new Thread(){ @Override public void run() {
-                Date now;
+                Date now, submit = new Date(CurrentBT.getStart().getTime() + CurrentBT.getTime()*60000);
                 long milileft = 0, sec = 0;
                 String timeleft = null, datatime = null, 
                         TimeLeft = Lang.getString("TimeLeft"),
@@ -750,6 +724,7 @@ startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
                     lblDay.setText(DateFomater.format(now));
                     milileft = NgayThi.getTime() - now.getTime();
                     sec = milileft/1000;
+                    if(now.equals(submit)){Submit();}
                     if(!StartExam && (milileft < 0 && milileft >= -(timeDelay*60*1000))){StartExam = true; startExam();}
                     if(sec < 0)                         {sec = -sec;}
                     if(sec < 60)                        {timeleft = String.valueOf(sec);            datatime = "Sec";}
@@ -870,5 +845,50 @@ startTimeThread(CurrentBT.getStart(), CurrentBT.getDelay());
             String guide = Lang.getString("Tip") + " " + String.valueOf(i+1) + ": " +Lang.getString("Guide" + String.valueOf(i));
             setResult(guide);
         }
+    }
+    
+    private void Submit(){
+        BigLoader loader = new BigLoader(this, true);
+        loader.setInfor("/UI/Image/Circle.gif", Lang.getString("Loading"));
+        loader.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowOpened(java.awt.event.WindowEvent evt) {
+                new Thread() { @Override public void run() {
+                    Log.add("Scoring...");
+                    Double  PercentT = CurrentDT.getPercentT()/100.0,
+                            markA = arrA.size() < 1 ? 0.0 : ((CurrentDT.getPercentA()/100.0)*10) / arrA.size()*PercentT,
+                            markB = arrB.size() < 1 ? 0.0 : ((CurrentDT.getPercentB()/100.0)*10) / arrB.size()*PercentT,
+                            markC = arrC.size() < 1 ? 0.0 : ((CurrentDT.getPercentC()/100.0)*10) / arrC.size()*PercentT,
+                            markD = arrD.size() < 1 ? 0.0 : ((CurrentDT.getPercentD()/100.0)*10) / arrD.size()*PercentT,
+                            TotalMark = 0.0;
+                            
+                    DecimalFormat df = new DecimalFormat();
+                    df.setMaximumFractionDigits(6);
+                    for(Component com : temp.getComponents()){
+                        if(com instanceof panSentences pan){
+                            CauHoi ch = pan.cauhoi;
+                            if(ch.getLevel()==0 && pan.getDapAn()) TotalMark+=markA;
+                            if(ch.getLevel()==1 && pan.getDapAn()) TotalMark+=markB;
+                            if(ch.getLevel()==2 && pan.getDapAn()) TotalMark+=markC;
+                            if(ch.getLevel()==3 && pan.getDapAn()) TotalMark+=markD;
+                        }
+                    }
+                    try{
+                        Log.add("Submit exam.");
+                        BCDAO.Update(new BaoCao(CurrentBT.getIDBuoiThi(), CurrentL.getIDLop(), CurrentSV.getIDSinhVien(), TotalMark, LostFocus));
+                        CurrentSV.setStatus(false);
+                        SVDAO.Update(CurrentSV);
+                        dispose();
+                        Finished dialog = new Finished();
+                        dialog.setMark(df.format(TotalMark));
+                        dialog.setVisible(true);
+                    }catch(Exception ex){
+                        Mode.WMessage(ParentComponent, Lang.getString("ErrSub"), Lang.getString("Notifi"), ERROR_MESSAGE);
+                    }
+                    
+                    loader.dispose();
+                }}.start();
+            }});
+        loader.setVisible(true);
+        
     }
 }
