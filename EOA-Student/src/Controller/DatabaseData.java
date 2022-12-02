@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class DatabaseData {
-    private static final String //URL = "jdbc:sqlserver://localhost:1433;DatabaseName=EOA;encrypt=true;trustServerCertificate=true",//"jdbc:sqlserver://AChatDB.mssql.somee.com;DatabaseName=EOA;encrypt=true;trustServerCertificate=true"
+    private static final String //URL = "jdbc:sqlserver://localhost:1433;DatabaseName=EOA;encrypt=true;trustServerCertificate=true",
                                 
     
     public static final SQL EOA_DB = new SQL(URL, DB_USERNAME, DB_PASSWORD);
