@@ -789,14 +789,25 @@ public class Dashboard extends javax.swing.JFrame {
     }
     
     private void startExam(){
-        getSentences();
-        CurrentSV.setStatus(true);
-        SVDAO.Update(CurrentSV);
-        LostFocus = 0;
-        lblLostFocus.setText(Lang.getString("LostFocus") + ": " + LostFocus);
-        icoSettings.setVisible(false);  icoClose.setVisible(false);
-        chkSubmit.setVisible(true);
-        fillSentences();
+        BigLoader loader = new BigLoader(this, true);
+        loader.setInfor("/UI/Image/Circle.gif", Lang.getString("Loading"));
+        loader.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowOpened(java.awt.event.WindowEvent evt) {
+                new Thread() { @Override public void run() {
+                    
+                    getSentences();
+                    CurrentSV.setStatus(true);
+                    SVDAO.Update(CurrentSV);
+                    LostFocus = 0;
+                    lblLostFocus.setText(Lang.getString("LostFocus") + ": " + LostFocus);
+                    icoSettings.setVisible(false);  icoClose.setVisible(false);
+                    chkSubmit.setVisible(true);
+                    fillSentences();
+        
+                    loader.dispose();
+                }}.start();
+            }});
+        loader.setVisible(true);
     }
     
     private final Rectangle rec = new Rectangle();
